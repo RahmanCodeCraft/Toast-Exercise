@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { Snackbar, Button, IconButton } from "@mui/material";
 import {
   onMessage,
   saveLikedFormSubmission,
   fetchLikedFormSubmissions,
 } from "./service/mockServer";
-import CloseIcon from "@mui/icons-material/Close";
+import Popup from "./Popup";
 
 export default function Content() {
-  const [toasts, setToasts] = useState([]);
+  const [notification, setNotification] = useState([]);
   const [likedSubmissions, setLikedSubmissions] = useState([]);
 
   useEffect(() => {
@@ -28,8 +27,8 @@ export default function Content() {
 
   useEffect(() => {
     onMessage((newSubmission) => {
-      setToasts((prevToasts) => [
-        ...prevToasts,
+      setNotification((prevNotifications) => [
+        ...prevNotifications,
         { ...newSubmission, visible: true },
       ]);
     });
@@ -38,54 +37,31 @@ export default function Content() {
   const handleLikeSubmission = (submission) => {
     saveLikedFormSubmission(submission);
     setLikedSubmissions((prevLiked) => [...prevLiked, submission]);
-    setToasts((prevToasts) =>
-      prevToasts.map((toast) =>
+    setNotification((prevNotifications) =>
+      prevNotifications.map((toast) =>
         toast.id === submission.id ? { ...toast, visible: false } : toast
       )
     );
   };
 
-  const handleDismissToast = (id) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+  const handleDismissNotification = (id) => {
+    setNotification((prevNotifications) =>
+      prevNotifications.filter((toast) => toast.id !== id)
+    );
   };
 
   return (
     <Box sx={{ marginTop: 3 }}>
       <Typography variant="h4">Liked Form Submissions</Typography>
       <div className="App">
-        {toasts.map((toast) => {
-          if (!toast.visible) return null;
-          const { firstName, lastName, email } = toast.data;
+        {notification.map((notification) => {
+          if (!notification.visible) return null;
           return (
-            <Snackbar
-              key={toast.id}
-              open={true}
-              message={
-                <div>
-                  <Typography variant="body1">{`${firstName} ${lastName}`}</Typography>
-                  <Typography variant="body2">
-                    {`${email} just submitted a form!`}
-                  </Typography>
-                </div>
-              }
-              action={
-                <Box display="flex" alignItems="center">
-                  <Button
-                    onClick={() => handleLikeSubmission(toast)}
-                    color="primary"
-                  >
-                    Like
-                  </Button>
-                  <IconButton
-                    size="small"
-                    color="inherit"
-                    onClick={() => handleDismissToast(toast.id)}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              }
-              onClose={() => handleDismissToast(toast.id)}
+            <Popup
+              key={notification.id}
+              notification={notification}
+              handleLikeSubmission={handleLikeSubmission}
+              handleDismissNotification={handleDismissNotification}
             />
           );
         })}
