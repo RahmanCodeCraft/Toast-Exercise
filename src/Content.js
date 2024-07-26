@@ -2,6 +2,15 @@ import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
+import {
   onMessage,
   saveLikedFormSubmission,
   fetchLikedFormSubmissions,
@@ -66,17 +75,57 @@ export default function Content() {
           );
         })}
         <div>
-          <h2>Liked Submissions</h2>
-          <ul>
-            {likedSubmissions.map((submission) => {
-              const { firstName, lastName, email } = submission.data;
-              return (
-                <li
-                  key={submission.id}
-                >{`${firstName} ${lastName} having email ${email}`}</li>
-              );
-            })}
-          </ul>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    First Name
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Last Name
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Email
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {likedSubmissions.map((submission, index) => {
+                  const { firstName, lastName, email } = submission.data;
+                  return (
+                    <TableRow
+                      key={submission.id}
+                      sx={{
+                        backgroundColor:
+                          index % 2 === 0 ? "#f5f5f5" : "#ffffff",
+                        "&:hover": {
+                          backgroundColor: "#e0f7fa",
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
+                      <TableCell>{firstName}</TableCell>
+                      <TableCell>{lastName}</TableCell>
+                      <TableCell>{email}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
       </div>
     </Box>
