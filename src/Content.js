@@ -2,27 +2,18 @@ import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from "@mui/material";
-import {
   onMessage,
   saveLikedFormSubmission,
   fetchLikedFormSubmissions,
 } from "./service/mockServer";
 import Popup from "./Popup";
-import TablePagination from "@mui/material/TablePagination";
+import Loader from "./Loader";
+import UserTable from "./UserTable";
 
 export default function Content() {
   const [notification, setNotification] = useState([]);
   const [likedSubmissions, setLikedSubmissions] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLikedSubmissions();
@@ -34,6 +25,8 @@ export default function Content() {
       setLikedSubmissions(liked.formSubmissions);
     } catch (error) {
       console.error("Error fetching liked submissions:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,16 +51,8 @@ export default function Content() {
 
   const handleDismissNotification = (id) => {
     setNotification((prevNotifications) =>
-      prevNotifications.filter((toast) => toast.id !== id)
+      prevNotifications.filter((notification) => notification.id !== id)
     );
-  };
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
   };
 
   return (
@@ -86,67 +71,11 @@ export default function Content() {
           );
         })}
         <div style={{ marginTop: "20px" }}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    First Name
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Last Name
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Email
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {likedSubmissions
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((submission, index) => {
-                    const { firstName, lastName, email } = submission.data;
-                    return (
-                      <TableRow
-                        key={submission.id}
-                        sx={{
-                          backgroundColor:
-                            index % 2 === 0 ? "#f5f5f5" : "#ffffff",
-                          "&:hover": {
-                            backgroundColor: "#e0f7fa",
-                            cursor: "pointer",
-                          },
-                        }}
-                      >
-                        <TableCell>{firstName}</TableCell>
-                        <TableCell>{lastName}</TableCell>
-                        <TableCell>{email}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            component="div"
-            count={likedSubmissions.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {loading ? (
+            <Loader />
+          ) : (
+            <UserTable likedSubmissions={likedSubmissions} />
+          )}
         </div>
       </div>
     </Box>
